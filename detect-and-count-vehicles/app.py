@@ -1,5 +1,5 @@
-import cv2
 import streamlit as st
+import cv2
 import numpy as np
 from PIL import Image
 
@@ -35,22 +35,12 @@ st.markdown("""
     background-color: #f1f8ff;
     border-color: #2980b9;
 }
-.info-box {
-    text-align: center;
-    font-size: 18px;
-    font-weight: bold;
-    color: #2c3e50;
-    background-color: #ecf0f1;
-    padding: 10px;
-    border-radius: 10px;
-}
 </style>
 """, unsafe_allow_html=True)
 
 # Cascade Classifier'ları yükle
-car_cascade_src = "detect-and-count-vehicles/cars.xml"  # Cascade xml dosyanızın yolu
+car_cascade_src = 'cars.xml'  # Cascade xml dosyanızın yolu
 car_cascade = cv2.CascadeClassifier(car_cascade_src)
-
 
 def process_image(image_file):
     # Fotoğrafı aç
@@ -58,14 +48,24 @@ def process_image(image_file):
     image_arr = np.array(image)
 
     # Görüntüyü gri tonlamaya çevir
-    gray = cv2.cvtColor(image_arr, cv2.COLOR_BGR2GRAY)
+    grey = cv2.cvtColor(image_arr, cv2.COLOR_BGR2GRAY)
+
+    # GaussianBlur uygulama
+    blur = cv2.GaussianBlur(grey, (5, 5), 0)
+
+    # Görüntüye dilate işlemi uygulama
+    dilated = cv2.dilate(blur, np.ones((3, 3)))
+
+    # MorphologyEx ile kapanma işlemi uygulama
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2, 2))
+    closing = cv2.morphologyEx(dilated, cv2.MORPH_CLOSE, kernel)
 
     # Arabaları tespit et
-    cars = car_cascade.detectMultiScale(gray, 1.1, 1)
+    cars = car_cascade.detectMultiScale(closing, 1.1, 1)
 
     # Her araç için dikdörtgen çiz
     for (x, y, w, h) in cars:
-        cv2.rectangle(image_arr, (x, y), (x + w, y + h), (0, 255, 255), 2)
+        cv2.rectangle(image_arr, (x, y), (x + w, y + h), (255, 0, 0), 2)
 
     # Toplam araç sayısını hesapla
     total_cars = len(cars)
@@ -106,7 +106,7 @@ def main():
 
         with col2:
             # Fotoğrafı işle
-            st.markdown('<div class="info-box">Fotoğraf işleniyor...</div>', unsafe_allow_html=True)
+            st.info("Fotoğraf işleniyor...")  # Fotoğraf işleniyor mesajı
             result_image, car_count = process_image(image_file)
 
             st.subheader("Tespit Edilen Fotoğraf")
