@@ -48,7 +48,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Cascade Classifier'ları yükle
-car_cascade_src = 'C:\\Users\\furka\\PycharmProjects\\HelloWorld\\detect-and-count-vehicles\\cars.xml'  # Cascade xml dosyanızın yolu
+car_cascade_src = "detect-and-count-vehicles/cars.xml"  # Cascade xml dosyanızın yolu
 car_cascade = cv2.CascadeClassifier(car_cascade_src)
 
 
